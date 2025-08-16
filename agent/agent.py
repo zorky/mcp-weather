@@ -13,12 +13,12 @@ LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 
 LLM_TEMPERATURE=0.3  # 0 : déterministe et précis, 0.3 : un peu plus créatif, etc
 
-# tools = [get_weather, get_crypto_price]
 tools = [get_weather,
          get_crypto_price,
          get_coordinates_openmeteo,
          get_jours_feries, get_vacances_scolaires,
          duckduckgo_search]
+# tools = [get_weather, get_crypto_price]
 # tools = [get_weather, get_coordinates_openstreetmap]
 # tools = [get_coordinates_openmeteo, get_weather]
 
@@ -34,6 +34,7 @@ llm = ChatOpenAI(
 agent = initialize_agent(
     tools=tools,
     llm=llm,
-    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    # agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
     verbose=True,
 )
