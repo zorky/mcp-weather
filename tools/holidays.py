@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field
 import requests
 
 class VacancesInput(BaseModel):
-    zone: Literal["A","B","C"] = Field(default="C", description="Zone académique (A, B ou C)")
+    city: str = Field(default="Paris", description="La ville pour laquelle obtenir les vacances scolaires (ex: Paris, Lyon, Marseille)")
     annee_scolaire: str = Field(
-        default="2025-2026",
+            default="2024-2025",
         description="Année scolaire au format 'YYYY-YYYY' (ex: 2024-2025)"
     )
 
@@ -18,11 +18,14 @@ def get_jours_feries(annee: int = 2025) -> str:
     return "\n".join([f"{date} : {nom}" for date, nom in response.items()])
 
 @tool("get_vacances_scolaires", args_schema=VacancesInput)
-def get_vacances_scolaires(zone: str, annee_scolaire: str) -> str:
-    """Retourne les vacances scolaires pour une zone donnée (A, B ou C)."""
+def get_vacances_scolaires(city: str, annee_scolaire: str) -> str:
+    """Retourne les vacances scolaires pour une ville / commune donnée."""
 
     """
-    https://data.education.gouv.fr/api/records/1.0/search/?dataset=fr-en-calendrier-scolaire&refine.annee_scolaire=2024-2025&refine.zone=C
+    Tests : https://data.education.gouv.fr/explore/dataset/fr-en-calendrier-scolaire/api/?disjunctive.description&disjunctive.population&disjunctive.location&disjunctive.zones&disjunctive.annee_scolaire&sort=-end_date&lang=fr&timezone=Europe%2FParis&refine.location=Lyon&exclude.population=Enseignants
+    > https://data.education.gouv.fr/api/records/1.0/search/?dataset=fr-en-calendrier-scolaire&q=&sort=-start_date&facet=description&facet=start_date&facet=end_date&facet=annee_scolaire&refine.location=Paris&refine.annee_scolaire=2024-2025
+    
+    https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/records?limit=20&refine=location%3A%22Paris%22&refine.annee_scolaire=2024-2025
     Zones scolaires en France :
     - Zone A : Académies Besançon, Bordeaux, Clermont-Ferrand, Dijon, Grenoble, Limoges, Lyon, Poitiers
     - Zone B : Académies de Aix-Marseille, Amiens, Caen, Lille, Nancy-Metz, Nantes, Nice, Orléans-Tours, Reims, Rouen, Strasbourg
@@ -31,15 +34,19 @@ def get_vacances_scolaires(zone: str, annee_scolaire: str) -> str:
     url = "https://data.education.gouv.fr/api/records/1.0/search/"
     params = {
         "dataset": "fr-en-calendrier-scolaire",
+        "q": "",
+        "sort": "-start_date",
+        "facet": ["description", "start_date", "end_date", "annee_scolaire"],
         "rows": 100,
-        "refine.zones": zone,
+        # "refine.zone": zone,
+        "refine.location": city,
         "refine.annee_scolaire": annee_scolaire,
     }
     r = requests.get(url, params=params, timeout=15)
     r.raise_for_status()
     data = r.json().get("records", [])
     if not data:
-        return f"Aucune donnée pour zone {zone}, année {annee_scolaire}."
+        return f"Aucune donnée pour {city}, année {annee_scolaire}."
     lignes = []
     for rec in data:
         f = rec.get("fields", {})
