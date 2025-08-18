@@ -1,3 +1,0 @@
-fastapi # Web framework
-uvicorn # ASGI server
-requests # HTTP client
