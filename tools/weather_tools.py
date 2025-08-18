@@ -3,13 +3,12 @@ import logging
 import requests
 from datetime import datetime
 
-from agno.agent import Agent
-from agno.tools import tool
-
 from logger import init_logger
 logger = init_logger(level=logging.DEBUG)
 
-from tools.geo_tools import get_coordinates_openmeteo #, get_coordinates_openstreetmap
+# https://docs.agno.com/tools/tool-decorator#writing-your-own-tools
+from agno.tools import tool
+from tools.geo_tools import get_coordinates_openmeteo
 
 MAX_DAYS=7
 
@@ -19,7 +18,6 @@ def get_weather(city: str) -> str:
     logger.debug(f"Récupération des prévisions météo pour {city}")
     lat, lon = get_coordinates_openmeteo(city)
     logger.debug(f"Latitude : {lat} - Longitude : {lon}")
-    # lat, lon = get_coordinates_openstreetmap(city)
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": lat,
@@ -36,8 +34,8 @@ def get_weather(city: str) -> str:
     forecast = data["daily"]
     output = "Prévisions météo pour les prochains jours :\n"
     for i in range(min(MAX_DAYS, len(forecast["time"]))):
-        # day = _transform_date(forecast["time"][i])
-        day = forecast["time"][i]
+        day = _transform_date(forecast["time"][i])
+        # day = forecast["time"][i]
         t_min = forecast["temperature_2m_min"][i]
         t_max = forecast["temperature_2m_max"][i]
         rain = forecast["precipitation_sum"][i]

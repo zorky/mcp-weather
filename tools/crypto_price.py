@@ -1,5 +1,5 @@
 import requests
-from langchain.tools import tool
+from agno.tools import tool
 from pydantic import BaseModel, ValidationError
 import logging
 from logger import init_logger
@@ -10,7 +10,7 @@ logger = init_logger(level=logging.DEBUG)
 class CryptoPriceEUR(BaseModel):
     EUR: float
 
-@tool
+@tool(show_result=True, stop_after_tool_call=True)
 def get_crypto_price(symbol: str) -> str:
     """Donne le cours actuel en EUR d'une crypto (ex: BTC, ETH)."""
     logger.debug(f"Requête de prix pour la crypto : {symbol}")

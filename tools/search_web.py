@@ -1,4 +1,4 @@
-from langchain.tools import tool
+from agno.tools import tool
 import requests
 
 @tool

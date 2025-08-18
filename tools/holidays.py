@@ -1,4 +1,4 @@
-from langchain.tools import tool
+from agno.tools import tool
 from typing import Literal
 from pydantic import BaseModel, Field
 import requests
@@ -10,14 +10,14 @@ class VacancesInput(BaseModel):
         description="Année scolaire au format 'YYYY-YYYY' (ex: 2024-2025)"
     )
 
-@tool
+@tool(show_result=True, stop_after_tool_call=True)
 def get_jours_feries(annee: int = 2025) -> str:
     """Retourne les jours fériés en France métropolitaine pour une année donnée."""
     url = f"https://calendrier.api.gouv.fr/jours-feries/metropole/{annee}.json"
     response = requests.get(url).json()
     return "\n".join([f"{date} : {nom}" for date, nom in response.items()])
 
-@tool("get_vacances_scolaires", args_schema=VacancesInput)
+@tool(show_result=True, stop_after_tool_call=True)
 def get_vacances_scolaires(city: str, annee_scolaire: str) -> str:
     """Retourne les vacances scolaires pour une ville / commune donnée."""
 

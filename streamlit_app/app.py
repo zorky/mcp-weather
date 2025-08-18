@@ -13,10 +13,9 @@ class AgentResponse(BaseModel):
     tool: Optional[str] = None
     metadata: Optional[dict] = None
     
-# streamlit page
 st.set_page_config(page_title="Agent tools", page_icon="🔧")
 
-st.title("Assistant avec Ollama + Tools 🌍")
+st.title("Assistant Agno + Ollama + Tools 🤖")
 
 st.markdown("""
 Posez une question, par exemple :

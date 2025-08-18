@@ -1,44 +1,89 @@
 import os
-#
-# from tools.crypto_price import get_crypto_price
-# from tools.holidays import get_jours_feries, get_vacances_scolaires
-# from tools.search_web import duckduckgo_search
+
+from tools.crypto_price import get_crypto_price
+from tools.holidays import get_jours_feries, get_vacances_scolaires
 from tools.weather_tools import get_weather
-# from tools.geo_tools import get_coordinates_openmeteo
+from tools.geo_tools import get_coordinates_openmeteo
 
 from ollama import Client
+
 from agno.agent import Agent
+from agno.team.team import Team
 from agno.models.ollama import Ollama
 
 MODEL=os.getenv("MODEL_NAME", "llama3:8b-instruct-q4_K_M")
 LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+LLM_TEMPERATURE=os.getenv("LLM_TEMPERATURE", '0.3')  # 0 : déterministe et précis, 0.3 : un peu plus créatif, etc
 
-LLM_TEMPERATURE='0.3'  # 0 : déterministe et précis, 0.3 : un peu plus créatif, etc
+MODE_TEAM_AGENTS = "coordinate"
 
-ollama_sync_client = Client(
-    host    = LLM_API,
-    headers = {
-        'temperature': LLM_TEMPERATURE
-    }
-)
+def _get_ollama_model():
+    ollama_sync_client = Client(
+        host=LLM_API,
+        headers={
+            'temperature': LLM_TEMPERATURE,
+            # 'seed': '1234567890'
+        }
+    )
+    ollama_model = Ollama(id=MODEL, provider="Ollama", client=ollama_sync_client)
+    return ollama_model
 
-tools = [get_weather]
-# tools = [get_weather,
-#          get_crypto_price,
-#          get_coordinates_openmeteo,
-#          get_jours_feries, get_vacances_scolaires,
-#          duckduckgo_search]
-# tools = [get_weather, get_crypto_price]
-# tools = [get_weather, get_coordinates_openstreetmap]
-# tools = [get_coordinates_openmeteo, get_weather]
+def _get_agents_team():
+    weather_agent = Agent(
+        name="Expert météo",
+        role="Donner des informations météo",
+        model=_get_ollama_model(),
+        tools=[get_weather],
+        instructions="Réponds uniquement sur la météo d'une ville ou d'un lieu.",
+        show_tool_calls=True,
+        markdown=True,
+    )
 
-agent = Agent(
-    name="Multi tools agent",
-    role="Donner des informations météo",
-    model=Ollama(id=MODEL, provider="Ollama", client=ollama_sync_client),
-    tools=[get_weather],
-    instructions="Utilise les outils disponibles pour fournir la météo",
-    show_tool_calls=True,
-    markdown=True,
-)
+    crypto_agent = Agent(
+        name="Expert cours de crypto monnaies",
+        role="Donner le cours de crypto monnaies",
+        model=_get_ollama_model(),
+        tools=[get_crypto_price],
+        instructions="Réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies.",
+        show_tool_calls=True,
+        markdown=True,
+    )
 
+    holidays_agent = Agent(
+        name="Agent des dates de vacances scolaires ou de jours fériés",
+        role="Donner les dates de vacances scolaires ou de jours fériés pour une ville ou une commune",
+        model=_get_ollama_model(),
+        tools=[get_jours_feries, get_vacances_scolaires],
+        instructions="Réponds uniquement sur les dates de vacances scolaires ou de jours fériés pour une ville ou une commune.",
+        show_tool_calls=True,
+        markdown=True,
+    )
+
+    gps_agent = Agent(
+        name="Agent de coordonnées GPS",
+        role="Donner les coordonnées GPS d'une ville ou d'une commune",
+        model=_get_ollama_model(),
+        tools=[get_coordinates_openmeteo],
+        instructions="Réponds uniquement sur les demandes de coordonnées GPS pour une ville ou une commune.",
+        show_tool_calls=True,
+        markdown=True,
+    )
+    return [weather_agent, crypto_agent, holidays_agent, gps_agent]
+
+def get_agent_team():
+    team_agent = Team(
+        name="Equipe de tools",
+        mode=MODE_TEAM_AGENTS,  # coordination : choisit quel agent interroger
+        model=_get_ollama_model(),
+        members=_get_agents_team(),
+        instructions=[
+            "Analyse la demande de l'utilisateur et délègue au bon expert ou agent.",
+            "Ne mélange pas les domaines : météo → Expert météo, "
+            "crypto → Expert cours de crypto monnaies, "
+            "vacances scolaires ou fériés → Agent des dates de vacances scolaires ou fériés,"
+            "coordonnées GPS → agent de coordonnées GPS."
+        ],
+        show_tool_calls=True,
+        markdown=True
+    )
+    return team_agent

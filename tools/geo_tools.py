@@ -1,5 +1,23 @@
 import requests
-from langchain.tools import tool
+from agno.tools import tool
+
+import logging
+from logger import init_logger
+logger = init_logger(level=logging.DEBUG)
+
+
+@tool(show_result=True, stop_after_tool_call=True)
+def get_coordinates_openmeteo(city: str) -> tuple:
+    """Récupère les coordonnées GPS d'une ville donnée sous forme de (latitude, longitude)."""
+    url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1"
+    # https://geocoding-api.open-meteo.com/v1/search?name=Paris&count=1
+    logger.debug(f"get_coordinates_openmeteo : {url}")
+    r = requests.get(url)
+    data = r.json()
+    if results := data.get("results"):
+        return results[0]["latitude"], results[0]["longitude"]
+    else:
+        return "Ville inconnue", "Ville inconnue"
 
 @tool
 def get_coordinates_openstreetmap(city: str) -> tuple:
@@ -35,15 +53,3 @@ def get_coordinates_openstreetmap(city: str) -> tuple:
     longitude = data[0]["lon"]
     print(f"Coordonnées de {city} : latitude = {latitude}, longitude = {longitude}")
     return latitude, longitude
-
-@tool
-def get_coordinates_openmeteo(city: str) -> tuple:
-    """Récupère les coordonnées GPS d'une ville donnée sous forme de (latitude, longitude)."""
-    url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1"
-    # https://geocoding-api.open-meteo.com/v1/search?name=Paris&count=1
-    r = requests.get(url)
-    data = r.json()
-    if results := data.get("results"):
-        return results[0]["latitude"], results[0]["longitude"]
-    else:
-        return "Ville inconnue", "Ville inconnue"
