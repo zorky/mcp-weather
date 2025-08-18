@@ -75,14 +75,15 @@ def _get_agents_team():
         name="Web News Agent",
         role="Recherche Web pour les informations n'ayant pas d'expert ou d'agent dédié",
         description="Vous êtes un agent de presse qui aide les utilisateurs à trouver les dernières nouvelles.",
+        model=_get_ollama_model(),
         tools=[GoogleSearchTools()],
         # tools=[DuckDuckGoTools()],
         instructions="À partir d'un sujet donné par l'utilisateur, répondez avec les quatre dernières actualités sur ce sujet."
                      "Recherchez 10 actualités et sélectionnez les quatre éléments uniques les plus importants."
                      "Rechercher en français.",
         show_tool_calls=True,
-        debug_mode=False,
-        markdown=True,
+        debug_mode=True,
+        markdown=False,
     )
     return [weather_agent, crypto_agent, holidays_agent, gps_agent, search_agent]
 
@@ -98,7 +99,7 @@ def get_agent_team():
             "crypto → Expert cours de crypto monnaies, "
             "vacances scolaires ou fériés → Agent des dates de vacances scolaires ou fériés,"
             "coordonnées GPS → agent de coordonnées GPS,"
-            "pour une recherche web ou d'actualités qui n'a pas d'outils, utilise l'agent de recherche Web."
+            "pour une recherche web ou d'actualités qui n'a pas d'outils → utilise l'agent de recherche Web."
         ],
         show_tool_calls=True,
         markdown=True
