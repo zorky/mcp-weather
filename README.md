@@ -62,13 +62,18 @@ Think → Act → Observe
 
 **Boucle de raisonnement où le LLM :**
 
-raisonne sur la tâche (via du texte, ex. "Je dois chercher la météo")
+raisonne sur la tâche (via du texte, ex. "Je dois chercher la météo"), agit en appelant un outil externe (ex. appeler une API météo), observe le résultat retourné (ex. "Il fera 28°C à Paris"), réagit et continue à raisonner ou à agir jusqu’à la réponse finale
 
-agit en appelant un outil externe (ex. appeler une API météo)
-
-observe le résultat retourné (ex. "Il fera 28°C à Paris")
-
-réagit et continue à raisonner ou à agir jusqu’à la réponse finale
+```yaml
+User: "Quelle est la météo à 6 jours à Bordeaux ?"
+↓
+LLM:
+- Thought: Je dois obtenir la météo à 6 jours.
+- Action: get_weather("Bordeaux")
+- Observation: 24°C, nuageux
+- Thought: J'ai l'information, je peux répondre.
+- Final Answer: À Bordeaux, dans 6 jours, il fera 24°C, etc.
+```
 
 Schéma :
 
