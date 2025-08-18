@@ -43,3 +43,5 @@ Les toolkits de Agno https://docs.agno.com/integrations/tools/
 - docker compose up
 
 L'interface Streamlit est disponible sur http://localhost:8501
+
+![streamlit-agno-tools.png](screenshots/streamlit-agno-tools.png)
