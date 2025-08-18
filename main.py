@@ -41,13 +41,9 @@ class ToolCallRequest(BaseModel):
 
 @app.post("/mcp/tool_call")
 async def call_tool(request: ToolCallRequest):
-    # payload = await request.json()
-    # tool_name = payload.get("name")
-    # params = payload.get("parameters", {})
     tool_name = request.name
     params = request.parameters
     if tool_name == "get_weather":
-        # result = await get_weather(params.get("city", ""))
         result = get_weather(params.get("city", ""))
         return {"result": result}
     elif tool_name == "get_coordinates_openstreetmap":
