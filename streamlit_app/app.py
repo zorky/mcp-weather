@@ -16,7 +16,7 @@ class AgentResponse(BaseModel):
 # streamlit page
 st.set_page_config(page_title="Agent tools", page_icon="🔧")
 
-st.title("Assistant avec Ollama + Tools 🌍")
+st.title("Assistant avec LangChain + Ollama + Tools 🌍")
 
 st.markdown("""
 Posez une question, par exemple :
