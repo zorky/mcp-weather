@@ -34,6 +34,8 @@ L'interface Streamlit est disponible sur http://localhost:8501
 
 Les toolkits de Agno https://docs.agno.com/integrations/tools/
 
+![streamlit-langchain-tools.png](screenshots/streamlit-langchain-tools.png)
+
  ### Sources, branche et lancer
 
 - git clone git@github.com:zorky/mcp-weather.git
