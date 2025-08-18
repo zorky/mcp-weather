@@ -8,6 +8,8 @@ from tools.geo_tools import get_coordinates_openmeteo
 from ollama import Client
 
 from agno.agent import Agent
+# from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.googlesearch import GoogleSearchTools
 from agno.team.team import Team
 from agno.models.ollama import Ollama
 
@@ -50,7 +52,7 @@ def _get_agents_team():
     )
 
     holidays_agent = Agent(
-        name="Agent des dates de vacances scolaires ou de jours fériés",
+        name="Expert des dates de vacances scolaires ou de jours fériés",
         role="Donner les dates de vacances scolaires ou de jours fériés pour une ville ou une commune",
         model=_get_ollama_model(),
         tools=[get_jours_feries, get_vacances_scolaires],
@@ -60,7 +62,7 @@ def _get_agents_team():
     )
 
     gps_agent = Agent(
-        name="Agent de coordonnées GPS",
+        name="Expert de coordonnées GPS",
         role="Donner les coordonnées GPS d'une ville ou d'une commune",
         model=_get_ollama_model(),
         tools=[get_coordinates_openmeteo],
@@ -68,7 +70,21 @@ def _get_agents_team():
         show_tool_calls=True,
         markdown=True,
     )
-    return [weather_agent, crypto_agent, holidays_agent, gps_agent]
+
+    search_agent = Agent(
+        name="Web News Agent",
+        role="Recherche Web pour les informations n'ayant pas d'expert ou d'agent dédié",
+        description="Vous êtes un agent de presse qui aide les utilisateurs à trouver les dernières nouvelles.",
+        tools=[GoogleSearchTools()],
+        # tools=[DuckDuckGoTools()],
+        instructions="À partir d'un sujet donné par l'utilisateur, répondez avec les quatre dernières actualités sur ce sujet."
+                     "Recherchez 10 actualités et sélectionnez les quatre éléments uniques les plus importants."
+                     "Rechercher en français.",
+        show_tool_calls=True,
+        debug_mode=False,
+        markdown=True,
+    )
+    return [weather_agent, crypto_agent, holidays_agent, gps_agent, search_agent]
 
 def get_agent_team():
     team_agent = Team(
@@ -81,7 +97,8 @@ def get_agent_team():
             "Ne mélange pas les domaines : météo → Expert météo, "
             "crypto → Expert cours de crypto monnaies, "
             "vacances scolaires ou fériés → Agent des dates de vacances scolaires ou fériés,"
-            "coordonnées GPS → agent de coordonnées GPS."
+            "coordonnées GPS → agent de coordonnées GPS,"
+            "pour une recherche web ou d'actualités qui n'a pas d'outils, utilise l'agent de recherche Web."
         ],
         show_tool_calls=True,
         markdown=True
