@@ -11,7 +11,7 @@ import logging
 from logger import init_logger
 
 from agent.agent import agent
-from agent.agent_executor import create_hybrid_agent
+# from agent.agent_executor import create_hybrid_agent
 
 from tools.weather_tools import get_weather
 
@@ -20,7 +20,11 @@ logger = init_logger(level=logging.DEBUG)
 
 @app.get("/ask")
 async def ask_agent(question: str):
-    return {"response": agent.run(question)}
+    # response = agent.print_response(question, stream=False, show_full_reason=True)
+    response = agent.run(question)
+    logger.debug(f"** ask_agent : {response.content}")
+    logger.debug(f"** ask_agent reasoning : {response.reasoning_content}")
+    return {"response": response.content}
 
 @app.get("/ask_hybrid")
 async def ask_hybrid(question: str):

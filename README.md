@@ -3,8 +3,9 @@
 ## UV
 
 ```bash
-uv .venv
-source .venv/bin/activate
+uv venv
+source .venv/bin/activate # linux / mac
+source .venv/Scripts/activate # windows
 uv sync
 ```
 

@@ -3,15 +3,17 @@ import logging
 import requests
 from datetime import datetime
 
-from langchain.tools import tool
+from agno.agent import Agent
+from agno.tools import tool
 
 from logger import init_logger
-from tools.geo_tools import get_coordinates_openmeteo #, get_coordinates_openstreetmap
 logger = init_logger(level=logging.DEBUG)
+
+from tools.geo_tools import get_coordinates_openmeteo #, get_coordinates_openstreetmap
 
 MAX_DAYS=7
 
-@tool
+@tool(show_result=True, stop_after_tool_call=True)
 def get_weather(city: str) -> str:
     """Renvoie les prévisions météo pour une ville donnée, maximum pour les 6 prochains jours. description obligatoire pour tool"""
     logger.debug(f"Récupération des prévisions météo pour {city}")
