@@ -7,9 +7,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY app.py .
+COPY requirements.txt ./
 
-RUN pip install --no-cache-dir streamlit requests pydantic
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py .
 
 EXPOSE 8501
 
