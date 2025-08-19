@@ -9,11 +9,13 @@ from ollama import Client
 
 from agno.models.ollama import Ollama
 from agno.agent import Agent, RunResponse
-from agno.tools.reasoning import ReasoningTools
-from agno.utils.pprint import pprint_run_response
+# from agno.tools.reasoning import ReasoningTools
+# from agno.utils.pprint import pprint_run_response
 from rich.pretty import pprint
 
 from tools.crypto_price import get_crypto_price
+# from agent.agent import _get_agent
+
 
 load_dotenv()
 LLM_MODEL = os.getenv("LLM_MODEL", "mistral")
@@ -58,7 +60,8 @@ def _get_agent(name: str, role: str, tools: list, instructions: str | list[str],
         model=_get_ollama_model(),
         tools=tools,
         instructions=instructions,
-        show_tool_calls=True,
+        show_tool_calls=False,
+        # use_json_mode=True,
         markdown=True,
     )
 
