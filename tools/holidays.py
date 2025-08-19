@@ -1,7 +1,9 @@
 from agno.tools import tool
-from typing import Literal
 from pydantic import BaseModel, Field
 import requests
+import logging
+from logger import init_logger
+logger = init_logger(level=logging.DEBUG)
 
 class VacancesInput(BaseModel):
     city: str = Field(default="Paris", description="La ville pour laquelle obtenir les vacances scolaires (ex: Paris, Lyon, Marseille)")
@@ -31,6 +33,7 @@ def get_vacances_scolaires(city: str, annee_scolaire: str) -> str:
     - Zone B : Académies de Aix-Marseille, Amiens, Caen, Lille, Nancy-Metz, Nantes, Nice, Orléans-Tours, Reims, Rouen, Strasbourg
     - Zone C : Académies de Créteil, Montpellier, Paris, Toulouse, Versailles.
     """
+    logger.debug(f"Récupération des vacances scolaires pour {city} pour l'année scolaire {annee_scolaire}")
     url = "https://data.education.gouv.fr/api/records/1.0/search/"
     params = {
         "dataset": "fr-en-calendrier-scolaire",

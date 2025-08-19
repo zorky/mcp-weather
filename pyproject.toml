@@ -1,5 +1,5 @@
 [project]
-name = "agent-tools"
+name = "agno-agent-tools"
 version = "0.1.0"
 description = "Agno + Ollama + tools"
 readme = "README.md"
@@ -13,6 +13,7 @@ dependencies = [
     "openai>=1.99.9",
     "pycountry>=24.6.1",
     "pydantic>=2.11.7",
+    "python-dotenv>=1.1.1",
     "requests>=2.32.4",
     "streamlit>=1.47.1",
     "uvicorn>=0.35.0",

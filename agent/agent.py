@@ -10,8 +10,13 @@ from ollama import Client
 from agno.agent import Agent
 # from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.googlesearch import GoogleSearchTools
+# from agno.tools.reasoning import ReasoningTools
 from agno.team.team import Team
 from agno.models.ollama import Ollama
+
+import logging
+from logger import init_logger
+logger = init_logger(level=logging.DEBUG)
 
 MODEL=os.getenv("MODEL_NAME", "llama3:8b-instruct-q4_K_M")
 LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
@@ -35,7 +40,9 @@ def _get_agents_team():
         name="Expert météo",
         role="Donner des informations météo",
         model=_get_ollama_model(),
-        tools=[get_weather],
+        tools=[
+            # ReasoningTools(add_instructions=True),
+            get_weather],
         instructions="Réponds uniquement sur la météo d'une ville ou d'un lieu.",
         show_tool_calls=True,
         markdown=True,
@@ -88,6 +95,7 @@ def _get_agents_team():
     return [weather_agent, crypto_agent, holidays_agent, gps_agent, search_agent]
 
 def get_agent_team():
+    logger.debug(f"Création de l'équipe d'agents pour la gestion des outils : {MODEL} {LLM_API} {LLM_TEMPERATURE}")
     team_agent = Team(
         name="Equipe de tools",
         mode=MODE_TEAM_AGENTS,  # coordination : choisit quel agent interroger
