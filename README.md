@@ -46,4 +46,6 @@ Les toolkits de Agno https://docs.agno.com/integrations/tools/
 
 L'interface Streamlit est disponible sur http://localhost:8501
 
+![streamlit-agno-tools-weather.png](screenshots/streamlit-agno-tools-weather.png)
+
 ![streamlit-agno-tools.png](screenshots/streamlit-agno-tools.png)
