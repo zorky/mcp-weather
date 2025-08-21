@@ -49,8 +49,8 @@ services:
     ports:
       - "8501:8501"
     environment:
-#      - AGENT_WEATHER_URL=http://agent-tools:8000/ask
-      - AGENT_WEATHER_URL=http://agent-tools:8000/ask_hybrid
+      - AGENT_WEATHER_URL=http://agent-tools:8000/ask
+#      - AGENT_WEATHER_URL=http://agent-tools:8000/ask_hybrid
       - TIMEOUT_REQUEST_AGENT=600 # 10 minutes - côté nginx mettre proxy_read_timeout 600;
     depends_on:
       - agent-tools
