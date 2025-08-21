@@ -36,7 +36,7 @@ def get_crypto_price(symbol: str) -> str:
 
         # ✅ Validation via Pydantic
         parsed = CryptoPriceEUR(**data)
-        response = f"Le cours de {symbol} est de {parsed.EUR:.2f} €"
+        response = f"Le cours de {symbol} est de {parsed.EUR:.2f} € "
         logger.debug(f"Réponse formatée : {response}")
         return response
 
