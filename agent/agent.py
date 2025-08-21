@@ -10,8 +10,7 @@ from tools.geo_tools import get_coordinates_openmeteo
 
 MODEL=os.getenv("MODEL_NAME", "llama3:8b-instruct-q4_K_M")
 LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
-
-LLM_TEMPERATURE=0.3  # 0 : déterministe et précis, 0.3 : un peu plus créatif, etc
+LLM_TEMPERATURE=os.getenv("LLM_TEMPERATURE", '0.3')  # 0 : déterministe et précis, 0.3 : un peu plus créatif, etc
 
 tools = [get_weather,
          get_crypto_price,

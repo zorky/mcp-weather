@@ -24,6 +24,7 @@ async def ask_agent(question: str):
 
 @app.get("/ask_hybrid")
 async def ask_hybrid(question: str):
+    logger.debug(f"Entering new AgentExecutor chain...with question : {question}")
     agent = create_hybrid_agent()
     response = agent.invoke({"input": question})
     return {"response": response["output"]}

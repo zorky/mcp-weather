@@ -12,7 +12,7 @@ class CryptoPriceEUR(BaseModel):
 
 @tool
 def get_crypto_price(symbol: str) -> str:
-    """Donne le cours actuel en EUR d'une crypto (ex: BTC, ETH)."""
+    """Donne le cours actuel en EUR d'une crypto monnaie (ex: BTC, ETH)."""
     logger.debug(f"Requête de prix pour la crypto : {symbol}")
 
     symbol = symbol.upper()
