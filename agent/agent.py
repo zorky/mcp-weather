@@ -18,8 +18,9 @@ import logging
 from logger import init_logger
 logger = init_logger(level=logging.DEBUG)
 
-MODEL=os.getenv("MODEL_NAME", "llama3:8b-instruct-q4_K_M")
-LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+MODEL=os.getenv("MODEL_NAME", "mistral")
+# MODEL=os.getenv("MODEL_NAME", "llama3:8b-instruct-q4_K_M")
+LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/")
 LLM_TEMPERATURE=os.getenv("LLM_TEMPERATURE", '0.3')  # 0 : déterministe et précis, 0.3 : un peu plus créatif, etc
 
 MODE_TEAM_AGENTS = "coordinate"
@@ -34,6 +35,18 @@ def _get_ollama_model():
     )
     ollama_model = Ollama(id=MODEL, provider="Ollama", client=ollama_sync_client)
     return ollama_model
+
+def create_agent(name: str, role: str, tools: list, instructions: str | list[str], /) -> Agent:
+    return Agent(
+        name=name,
+        role=role,
+        model=_get_ollama_model(),
+        tools=tools,
+        instructions=instructions,
+        show_tool_calls=False,
+        use_json_mode=False,
+        markdown=True,
+    )
 
 def _get_agents_team():
     weather_agent = Agent(
@@ -94,7 +107,10 @@ def _get_agents_team():
     )
     return [weather_agent, crypto_agent, holidays_agent, gps_agent, search_agent]
 
-def get_agent_team():
+def get_agent_team() -> Team:
+    """
+    Equipe d'agents multi-tools
+    """
     logger.debug(f"Création de l'équipe d'agents pour la gestion des outils : {MODEL} {LLM_API} {LLM_TEMPERATURE}")
     team_agent = Team(
         name="Equipe de tools",
