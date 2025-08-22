@@ -10,8 +10,9 @@ logger = init_logger(level=logging.DEBUG)
 class CryptoPriceEUR(BaseModel):
     EUR: float
 
-@tool(show_result=True, stop_after_tool_call=True,
-      cache_results=True, cache_dir="/tmp/agno_cache", cache_ttl=3600)
+# @tool(show_result=True, stop_after_tool_call=True,
+#       cache_results=True, cache_dir="/tmp/agno_cache", cache_ttl=3600)
+@tool(show_result=True, stop_after_tool_call=True)
 def get_crypto_price(symbol: str) -> str:
     """
     Donne le cours actuel en EUR d'une crypto (ex: BTC, ETH).

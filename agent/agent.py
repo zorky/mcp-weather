@@ -30,82 +30,67 @@ def _get_ollama_model():
         host=LLM_API,
         headers={
             'temperature': LLM_TEMPERATURE,
-            # 'seed': '1234567890'
+            'seed': '1234567890'
         }
     )
     ollama_model = Ollama(id=MODEL, provider="Ollama", client=ollama_sync_client)
     return ollama_model
 
-def create_agent(name: str, role: str, tools: list, instructions: str | list[str], /) -> Agent:
+def create_agent(name: str, role: str, tools: list, instructions: str | list[str]) -> Agent:
     return Agent(
         name=name,
         role=role,
         model=_get_ollama_model(),
         tools=tools,
         instructions=instructions,
-        show_tool_calls=False,
+        show_tool_calls=True,
         use_json_mode=False,
         markdown=True,
     )
 
 def _get_agents_team():
-    weather_agent = Agent(
+    weather_agent = create_agent(
         name="Expert météo",
         role="Donner des informations météo",
-        model=_get_ollama_model(),
-        tools=[
-            # ReasoningTools(add_instructions=True),
-            get_weather],
-        instructions="Réponds uniquement sur la météo d'une ville ou d'un lieu.",
-        show_tool_calls=True,
-        markdown=True,
-    )
-
-    crypto_agent = Agent(
+        tools=[get_weather],
+        instructions="Réponds uniquement sur la météo d'une ville ou d'un lieu."
+    )    
+    crypto_agent = create_agent(
         name="Expert cours de crypto monnaies",
         role="Donner le cours de crypto monnaies",
-        model=_get_ollama_model(),
         tools=[get_crypto_price],
-        instructions="Réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies.",
-        show_tool_calls=True,
-        markdown=True,
-    )
-
-    holidays_agent = Agent(
+        instructions="Réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies."
+    )    
+    holidays_agent = create_agent(
         name="Expert des dates de vacances scolaires ou de jours fériés",
-        role="Donner les dates de vacances scolaires ou de jours fériés pour une ville ou une commune",
-        model=_get_ollama_model(),
+        role="Donner les dates de vacances scolaires ou de jours fériés pour une ville ou une commune",        
         tools=[get_jours_feries, get_vacances_scolaires],
-        instructions="Réponds uniquement sur les dates de vacances scolaires ou de jours fériés pour une ville ou une commune.",
-        show_tool_calls=True,
-        markdown=True,
+        instructions="Réponds uniquement sur les dates de vacances scolaires ou de jours fériés pour une ville ou une commune."        
     )
-
-    gps_agent = Agent(
+    gps_agent = create_agent(    
         name="Expert de coordonnées GPS",
-        role="Donner les coordonnées GPS d'une ville ou d'une commune",
-        model=_get_ollama_model(),
+        role="Donner les coordonnées GPS d'une ville ou d'une commune",        
         tools=[get_coordinates_openmeteo],
-        instructions="Réponds uniquement sur les demandes de coordonnées GPS pour une ville ou une commune.",
-        show_tool_calls=True,
-        markdown=True,
+        instructions="Réponds uniquement sur les demandes de coordonnées GPS pour une ville ou une commune."        
     )
 
-    search_agent = Agent(
-        name="Web News Agent",
-        role="Recherche Web pour les informations n'ayant pas d'expert ou d'agent dédié",
-        description="Vous êtes un agent de presse qui aide les utilisateurs à trouver les dernières nouvelles.",
-        model=_get_ollama_model(),
-        tools=[GoogleSearchTools()],
-        # tools=[DuckDuckGoTools()],
-        instructions="À partir d'un sujet donné par l'utilisateur, répondez avec les quatre dernières actualités sur ce sujet."
-                     "Recherchez 10 actualités et sélectionnez les quatre éléments uniques les plus importants."
-                     "Rechercher en français.",
-        show_tool_calls=True,
-        debug_mode=True,
-        markdown=False,
-    )
-    return [weather_agent, crypto_agent, holidays_agent, gps_agent, search_agent]
+    # search_agent = Agent(
+    #     name="Web News Agent",
+    #     role="Recherche Web pour les informations n'ayant pas d'expert ou d'agent dédié",
+    #     description="Vous êtes un agent de presse qui aide les utilisateurs à trouver les dernières nouvelles.",
+    #     model=_get_ollama_model(),
+    #     tools=[GoogleSearchTools()],
+    #     # tools=[DuckDuckGoTools()],
+    #     instructions="À partir d'un sujet donné par l'utilisateur, répondez avec les quatre dernières actualités sur ce sujet."
+    #                  "Recherchez 10 actualités et sélectionnez les quatre éléments uniques les plus importants."
+    #                  "Rechercher en français.",
+    #     show_tool_calls=True,
+    #     debug_mode=True,
+    #     markdown=False,
+    # )
+    return [weather_agent, crypto_agent, holidays_agent, gps_agent, 
+            # search_agent
+            ]
 
 def get_agent_team() -> Team:
     """
@@ -119,11 +104,12 @@ def get_agent_team() -> Team:
         members=_get_agents_team(),
         instructions=[
             "Analyse la demande de l'utilisateur et délègue au bon expert ou agent.",
-            "Ne mélange pas les domaines : météo → Expert météo, "
+            "Ne mélange pas les domaines : "
+            "météo → Expert météo, "
             "crypto → Expert cours de crypto monnaies, "
-            "vacances scolaires ou fériés → Agent des dates de vacances scolaires ou fériés,"
-            "coordonnées GPS → agent de coordonnées GPS,"
-            "pour une recherche web ou d'actualités qui n'a pas d'outils → utilise l'agent de recherche Web."
+            "vacances scolaires ou fériés → Expert des dates de vacances scolaires ou fériés,"
+            "coordonnées GPS → Expert de coordonnées GPS"
+            # "pour une recherche web ou d'actualités qui n'a pas d'outils → utilise l'agent de recherche Web."
         ],
         show_tool_calls=True,
         markdown=True
