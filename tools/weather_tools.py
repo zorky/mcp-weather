@@ -14,7 +14,8 @@ MAX_DAYS=7
 
 @tool(show_result=True, stop_after_tool_call=True)
 def get_weather(city: str) -> str:
-    """Renvoie les prévisions météo pour une ville donnée, maximum pour les 6 prochains jours. description obligatoire pour tool"""
+    """Renvoie les prévisions météo pour une ville donnée, maximum pour les 6 prochains jours."""
+
     logger.debug(f"Récupération des prévisions météo pour {city}")
     lat, lon = get_coordinates_openmeteo(city)
     logger.debug(f"Latitude : {lat} - Longitude : {lon}")

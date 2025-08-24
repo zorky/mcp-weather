@@ -1,0 +1,14 @@
+# On part du modèle de base
+FROM registry.ollama.ai/library/nous-hermes:latest
+
+# On active le support des tools
+PARAMETER tools true
+
+# Optionnel : température par défaut
+PARAMETER temperature 0.3
+
+# Optionnel : instructions système
+SYSTEM """
+Tu es Nous-Hermes avec le support des tools activé.
+Tu peux utiliser les tools définis par l'application quand cela est pertinent.
+"""

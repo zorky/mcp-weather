@@ -32,16 +32,20 @@ LLM_API = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/")
 LLM_TEMPERATURE = os.getenv("LLM_TEMPERATURE", '0')  # 0 : déterministe et précis, 0.3 : un peu plus créatif, etc
 
 if __name__ == "__main__":
-    tools = [
-        # ReasoningTools(add_instructions=True),
-        get_crypto_price
-    ]
+    question="Quel est le cours du BTC et de l'ETH ?"
+    print(f"Agent simple pour le cours de crypto monnaies sur la question : {question}")
     print(f"LLM_MODEL: {LLM_MODEL} {LLM_API} {LLM_TEMPERATURE}")
-    crypto_agent = create_agent("Expert cours de crypto monnaies",
-                                "Donner le cours de crypto monnaies",
-                                tools,                                
-                                "Réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies.")    
-    crypto_agent.print_response("Quel est le cours du BTC et de l'ETH ?", 
+        
+    crypto_agent = create_agent(name="Expert cours de crypto monnaies",                                
+                                role="Assistant pour donner le cours de crypto monnaies",
+                                tools=[get_crypto_price],                                
+                                instructions=[
+                                    "Tu es un assistant financier sur les cryptos monnaies.",
+                                    "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
+                                    "Tu réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies."
+                                ]
+    )
+    crypto_agent.print_response(question, 
                                 stream=False, show_full_reason=False)
     # crypto_agent.run(
     #     "Quel est le cours du BTC et de l'ETH ?", stream=False

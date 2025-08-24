@@ -30,22 +30,28 @@ def _get_ollama_model():
         host=LLM_API,
         headers={
             'temperature': LLM_TEMPERATURE,
-            'seed': '1234567890'
+            # 'seed': '1234567890'
         }
     )
     ollama_model = Ollama(id=MODEL, provider="Ollama", client=ollama_sync_client)
     return ollama_model
 
-def create_agent(name: str, role: str, tools: list, instructions: str | list[str]) -> Agent:
+def create_agent(name: str, 
+                 role: str, 
+                 tools: list, 
+                 instructions: str | list[str]) -> Agent:
+    logger.debug(f"Création de l'agent {name} et instructions {instructions}")
+    logger.debug(f"pour Ollama : {MODEL} {LLM_API} {LLM_TEMPERATURE}")
     return Agent(
         name=name,
-        role=role,
+        role=role,        
         model=_get_ollama_model(),
         tools=tools,
         instructions=instructions,
         show_tool_calls=True,
-        use_json_mode=False,
+        # use_json_mode=True,
         markdown=True,
+        debug_mode=True
     )
 
 def _get_agents_team():
@@ -53,25 +59,33 @@ def _get_agents_team():
         name="Expert météo",
         role="Donner des informations météo",
         tools=[get_weather],
-        instructions="Réponds uniquement sur la météo d'une ville ou d'un lieu."
+        instructions=["Tu es un assistant météo.", 
+                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, de JSON ou d'appels de fonctions.", 
+                      "Tu donnes uniquement les prévisions météo pour la ville demandée."]
     )    
     crypto_agent = create_agent(
         name="Expert cours de crypto monnaies",
         role="Donner le cours de crypto monnaies",
         tools=[get_crypto_price],
-        instructions="Réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies."
+        instructions=["Tu es un assistant financier sur les cryptos monnaies. ",
+                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
+                      "Tu réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies."]
     )    
     holidays_agent = create_agent(
         name="Expert des dates de vacances scolaires ou de jours fériés",
         role="Donner les dates de vacances scolaires ou de jours fériés pour une ville ou une commune",        
         tools=[get_jours_feries, get_vacances_scolaires],
-        instructions="Réponds uniquement sur les dates de vacances scolaires ou de jours fériés pour une ville ou une commune."        
+        instructions=["Tu es un assistant des dates de vacances scolaires ou de jours fériés.",
+                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
+                      "Tu réponds uniquement sur les dates de vacances scolaires ou de jours fériés pour une ville ou une commune."]
     )
     gps_agent = create_agent(    
         name="Expert de coordonnées GPS",
         role="Donner les coordonnées GPS d'une ville ou d'une commune",        
         tools=[get_coordinates_openmeteo],
-        instructions="Réponds uniquement sur les demandes de coordonnées GPS pour une ville ou une commune."        
+        instructions=["Tu es un assistant de coordonnées GPS.",
+                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
+                      "Tu réponds uniquement sur les demandes de coordonnées GPS pour une ville ou une commune."]
     )
 
     # search_agent = Agent(
@@ -104,11 +118,12 @@ def get_agent_team() -> Team:
         members=_get_agents_team(),
         instructions=[
             "Analyse la demande de l'utilisateur et délègue au bon expert ou agent.",
+            "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
             "Ne mélange pas les domaines : "
-            "météo → Expert météo, "
-            "crypto → Expert cours de crypto monnaies, "
-            "vacances scolaires ou fériés → Expert des dates de vacances scolaires ou fériés,"
-            "coordonnées GPS → Expert de coordonnées GPS"
+            "météo → Assistant météo, "
+            "crypto → Assistant financier des cours de crypto monnaies, "
+            "vacances scolaires ou fériés → Assistant des dates de vacances scolaires ou fériés,"
+            "coordonnées GPS → Assistant de coordonnées GPS"
             # "pour une recherche web ou d'actualités qui n'a pas d'outils → utilise l'agent de recherche Web."
         ],
         show_tool_calls=True,

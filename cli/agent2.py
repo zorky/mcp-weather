@@ -20,7 +20,9 @@ from utils.metrics_agno import print_metrics_team
 from agent.agent import get_agent_team
 
 if __name__ == "__main__":
+    question="Je veux partir à Rome la semaine prochaine, quel temps fera-t-il ?"
+    print(f"Agent Team multi-agents sur la question {question}")
     team = get_agent_team()
-    response = team.run("Quel est le cours du BTC et de l'ETH ?", stream=False)
+    response = team.run(question, stream=False)
     pprint_run_response(response, markdown=False)
     print_metrics_team(team)
