@@ -14,7 +14,7 @@ from agno.agent import Agent
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from cli.ollama_model import get_ollama_model
+from cli.ollama_client_model import get_ollama_model
 
 import logging
 from logger import init_logger
@@ -22,6 +22,10 @@ logger = init_logger(level=logging.DEBUG)
 
 # Define custom Oxylabs tool
 class FuelStationSearchTool:
+    """
+    A tool for searching fuel stations using the Oxylabs API.
+    https://developers.oxylabs.io/scraping-solutions/web-scraper-api/targets/google/search/local-search
+    """
     USERNAME="baval_6hy9U"
     PASSWORD="Baval=123456789"
     URL="https://realtime.oxylabs.io/v1/queries"
@@ -81,7 +85,8 @@ agent = Agent(
 
 # Main execution
 if __name__ == "__main__":
-    # location_query = "NLS, Missisauga, ON"
-    # location_query = "Paris, France"
-    location_query = "Noisy-le-Grand, France"
+    default_location="Noisy-le-Grand, France"
+    location = input(f"Entrez votre localisation (ou appuyez sur Entrée pour la question par défaut '{default_location}') : ") or default_location
+    # location_query = "NLS, Missisauga, ON"    
+    location_query = location
     agent.print_response(location_query)

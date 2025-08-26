@@ -13,7 +13,7 @@ from agno.agent import Agent
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from cli.ollama_model import get_ollama_model
+from cli.ollama_client_model import get_ollama_model
 
 import logging
 from logger import init_logger
