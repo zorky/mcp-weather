@@ -36,10 +36,10 @@ def _get_ollama_model():
     ollama_model = Ollama(id=MODEL, provider="Ollama", client=ollama_sync_client)
     return ollama_model
 
-def create_agent(name: str, 
-                 role: str, 
-                 tools: list, 
-                 instructions: str | list[str]) -> Agent:
+def create_agent(name: str = "Agent", 
+                 role: str = "Assistant", 
+                 tools: list = [], 
+                 instructions: str | list[str] = "") -> Agent:
     logger.debug(f"Création de l'agent {name} et instructions {instructions}")
     logger.debug(f"pour Ollama : {MODEL} {LLM_API} {LLM_TEMPERATURE}")
     return Agent(

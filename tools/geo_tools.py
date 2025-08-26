@@ -6,7 +6,7 @@ from logger import init_logger
 logger = init_logger(level=logging.DEBUG)
 
 
-@tool(show_result=True, stop_after_tool_call=True)
+# @tool(show_result=True, stop_after_tool_call=True)
 def get_coordinates_openmeteo(city: str) -> tuple:
     """Récupère les coordonnées GPS d'une ville donnée sous forme de (latitude, longitude)."""
     url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1"

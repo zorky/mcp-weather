@@ -36,21 +36,26 @@ LLM_TEMPERATURE = os.getenv("LLM_TEMPERATURE", '0')  # 0 : déterministe et pré
 if __name__ == "__main__":    
     question="Quelle est la météo sur 6 jours à Paris ?"
     print(f"Agent simple pour la météo d'une ville sur la question : {question}")
-    print(f"LLM_MODEL: {LLM_MODEL} {LLM_API} {LLM_TEMPERATURE}")    
+    print(f"LLM_MODEL: {LLM_MODEL} {LLM_API} {LLM_TEMPERATURE}")  
+
+    name_tool_forecasts = getattr(get_weather, "name", None)  
+    instructions_forecasts = [
+        "Tu es un assistant météo",
+        f"⚠️ Tu DOIS utiliser le tool {name_tool_forecasts} pour répondre à toute question météo.",
+        # "Tu réponds toujours en français, en langage naturel.",
+        # "Tu réponds sans jamais afficher de code, de JSON ou d'appels de fonctions.",
+        # "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, de JSON ou d'appels de fonctions.",
+        "Ne réponds jamais avec tes propres connaissances sans appeler le tool."
+        ]
     weather_agent = create_agent(
-        name="Expert météo",
+        name="Agent météo",
         role="Donner des informations météo",        
         tools=[get_weather],
-        instructions=["Tu es un assistant météo.", 
-                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, de JSON ou d'appels de fonctions.", 
-                      "Tu donnes uniquement les prévisions météo pour la ville demandée."]
+        instructions=instructions_forecasts
     )  
-    weather_agent.print_response(question, 
-                                stream=False, show_full_reason=False)
-    # response = weather_agent.run(question, stream=False)
-    # print(f"** response : {response.content}")
+    weather_agent.print_response(question, stream=False, show_full_reason=False)    
     
-    print_metrics_agent(weather_agent)
+    # print_metrics_agent(weather_agent)
     
 
 
