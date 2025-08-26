@@ -72,7 +72,7 @@ Ne réponds jamais avec tes propres connaissances sans appeler le tool.
 
 if __name__ == "__main__":
     # Exemple d'utilisation
-    question = "Quelle sera la météo à Paris à 6 jours ?"
+    question = "Quelle sera la météo à Nantes à 6 jours ?"
     agent.print_response(question, stream=False, show_full_reason=False)
     # for event in agent.run(question, stream=True):
     #     print(event, end="", flush=True)
