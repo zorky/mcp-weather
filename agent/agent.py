@@ -122,22 +122,25 @@ def get_agent_team() -> Team:
     Equipe d'agents multi-tools
     """
     logger.debug(f"Création de l'équipe d'agents pour la gestion des outils : {MODEL} {LLM_API} {LLM_TEMPERATURE}")
+    # ne jamais mettre dans les instructions : "[...] sans jamais afficher de code, JSON ou d'appels de fonctions."
+    instructions = [
+            "Analyse la demande de l'utilisateur et délègue au bon expert ou agent.",            
+            "Ne mélange pas les domaines : ",
+            "météo → Assistant météo, ",
+            "crypto → Assistant financier des cours de crypto monnaies, ",
+            "vacances scolaires ou fériés → Assistant des dates de vacances scolaires ou fériés,",
+            "coordonnées GPS → Assistant de coordonnées GPS",
+            "Ne réponds jamais avec tes propres connaissances sans appeler les tools."
+            # "pour une recherche web ou d'actualités qui n'a pas d'outils → utilise l'agent de recherche Web."
+        ],
     team_agent = Team(
         name="Equipe de tools",
         mode=MODE_TEAM_AGENTS,  # coordination : choisit quel agent interroger
         model=_get_ollama_model(),
         members=_get_agents_team(),
-        instructions=[
-            "Analyse la demande de l'utilisateur et délègue au bon expert ou agent.",
-            "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
-            "Ne mélange pas les domaines : "
-            "météo → Assistant météo, "
-            "crypto → Assistant financier des cours de crypto monnaies, "
-            "vacances scolaires ou fériés → Assistant des dates de vacances scolaires ou fériés,"
-            "coordonnées GPS → Assistant de coordonnées GPS"
-            # "pour une recherche web ou d'actualités qui n'a pas d'outils → utilise l'agent de recherche Web."
-        ],
+        instructions=instructions,
         show_tool_calls=True,
-        markdown=True
+        debug_mode=True,
+        # markdown=True
     )
     return team_agent

@@ -11,6 +11,7 @@ services:
       OLLAMA_KEEP_ALIVE: "24h"
       OLLAMA_MAX_LOADED_MODELS: "1"
       OLLAMA_FLASH_ATTENTION: "1"
+      # OLLAMA_MODELS:""
     shm_size: 2g
     healthcheck:
       test: [ "CMD", "ollama", "list", "||", "exit", "1" ]

@@ -1,4 +1,5 @@
 # agent_meteo.py
+from dotenv import load_dotenv
 import requests
 from datetime import datetime
 from agno.agent import Agent
@@ -14,9 +15,16 @@ import logging
 from logger import init_logger
 logger = init_logger(level=logging.DEBUG)
 
-MODEL="mistral"
+load_dotenv()
+MODEL=os.getenv("LLM_MODEL", "mistral")
+
+# tools Ollama https://ollama.com/blog/tool-support
+# MODEL="mistral" # Mistral-7B-Instruct-v0.3 sur archi llama GGUF V3 Q4_K - Medium
+# MODEL="mistral:7b-instruct-q8_0" # no tools !
+# MODEL="llama3:8b-instruct-q4_K_M" # no tools !
+
 LLM_API="http://localhost:11434/"
-TEMPERATURE="0.3"
+TEMPERATURE="0"
 
 def _get_ollama_model():
     ollama_sync_client = Client(
@@ -122,8 +130,11 @@ agent = Agent(
 
 
 if __name__ == "__main__":
-    # Exemple d'utilisation
-    question = "Quelle sera la météo à Nantes à 6 jours ?"
+    logger.debug(f"Création de l'agent météo pour Ollama : {MODEL} {LLM_API} {TEMPERATURE}")
+    # default_question="Je veux partir à Rome la semaine prochaine, quel temps fera-t-il ?"
+    default_question="Quelle sera la météo à Nantes à 6 jours ?"
+    question = input(f"Entrez votre question (ou appuyez sur Entrée pour la question par défaut '{default_question}') : ") or default_question
+    print(f"Agent Team multi-agents sur la question : {question}")    
     agent.print_response(question, stream=False, show_full_reason=False)
     # for event in agent.run(question, stream=True):
     #     print(event, end="", flush=True)

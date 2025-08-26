@@ -27,3 +27,4 @@ if __name__ == "__main__":
     response = team.run(question, stream=False)
     pprint_run_response(response, markdown=False)
     # print_metrics_team(team)
+    

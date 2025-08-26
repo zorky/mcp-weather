@@ -11,6 +11,7 @@ def get_coordinates_openmeteo(city: str) -> str:
     logger.debug(f"get_coordinates_openmeteo : {url}")
     r = requests.get(url)
     data = r.json()
+    logger.debug(f"Données brutes reçues : {data}")
     if results := data.get("results"):
         return results[0]["latitude"], results[0]["longitude"]
     else:
