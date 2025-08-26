@@ -48,8 +48,8 @@ if __name__ == "__main__":
         "Ne réponds jamais avec tes propres connaissances sans appeler le tool."
         ]
     weather_agent = create_agent(
-        name="Agent météo",
-        role="Donner des informations météo",        
+        # name="Agent météo",
+        # role="Donner des informations météo",        
         tools=[get_weather],
         instructions=instructions_forecasts
     )  

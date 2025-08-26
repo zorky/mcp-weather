@@ -3,7 +3,7 @@ import os
 from tools.crypto_price import get_crypto_price
 from tools.holidays import get_jours_feries, get_vacances_scolaires
 from tools.weather_tools import get_weather
-from tools.geo_tools import get_coordinates_openmeteo
+from tools.geo_tools import tool_coordinates_openmeteo
 
 from ollama import Client
 
@@ -36,56 +36,67 @@ def _get_ollama_model():
     ollama_model = Ollama(id=MODEL, provider="Ollama", client=ollama_sync_client)
     return ollama_model
 
-def create_agent(name: str = "Agent", 
-                 role: str = "Assistant", 
+def create_agent(name: str = "", 
+                 role: str = "", 
                  tools: list = [], 
                  instructions: str | list[str] = "") -> Agent:
     logger.debug(f"Création de l'agent {name} et instructions {instructions}")
     logger.debug(f"pour Ollama : {MODEL} {LLM_API} {LLM_TEMPERATURE}")
     return Agent(
-        name=name,
-        role=role,        
+        # name=name,
+        # role=role,        
         model=_get_ollama_model(),
         tools=tools,
         instructions=instructions,
         show_tool_calls=True,
         # use_json_mode=True,
-        markdown=True,
+        # markdown=True,
+        add_datetime_to_instructions=True,
+        tool_choice="auto",  # non supporté par Ollama Client https://github.com/agno-agi/agno/issues/2625
         debug_mode=True
     )
 
 def _get_agents_team():
+    name_tool_forecasts = getattr(get_weather, "name", None)  
+    instructions_forecasts = [
+        "Tu es un assistant météo",
+        f"⚠️ Tu DOIS utiliser le tool {name_tool_forecasts} pour répondre à toute question météo.",
+        # "Tu réponds toujours en français, en langage naturel.",
+        # "Tu réponds sans jamais afficher de code, de JSON ou d'appels de fonctions.",
+        # "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, de JSON ou d'appels de fonctions.",
+        "Ne réponds jamais avec tes propres connaissances sans appeler le tool."
+        ]
     weather_agent = create_agent(
-        name="Expert météo",
-        role="Donner des informations météo",
         tools=[get_weather],
-        instructions=["Tu es un assistant météo.", 
-                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, de JSON ou d'appels de fonctions.", 
-                      "Tu donnes uniquement les prévisions météo pour la ville demandée."]
+        instructions=instructions_forecasts
     )    
+    name_tool_crypto = getattr(get_crypto_price, "name", None)
+    instructions_crypto = [
+        "Tu es un assistant financier sur les cryptos monnaies.",
+        f"⚠️ Tu DOIS utiliser le tool {name_tool_crypto} pour répondre à toute question sur les cryptos monnaies.",
+        "Tu réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies.",
+        "Ne réponds jamais avec tes propres connaissances sans appeler le tool."
+    ]
     crypto_agent = create_agent(
-        name="Expert cours de crypto monnaies",
-        role="Donner le cours de crypto monnaies",
         tools=[get_crypto_price],
-        instructions=["Tu es un assistant financier sur les cryptos monnaies. ",
-                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
-                      "Tu réponds uniquement sur le cours d'un ou plusieurs cryptomonnaies."]
+        instructions=instructions_crypto
     )    
+    name_tool_holidays = getattr(get_vacances_scolaires, "name", None)
+    name_tool_off = getattr(get_jours_feries, "name", None)
     holidays_agent = create_agent(
-        name="Expert des dates de vacances scolaires ou de jours fériés",
-        role="Donner les dates de vacances scolaires ou de jours fériés pour une ville ou une commune",        
         tools=[get_jours_feries, get_vacances_scolaires],
-        instructions=["Tu es un assistant des dates de vacances scolaires ou de jours fériés.",
-                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
-                      "Tu réponds uniquement sur les dates de vacances scolaires ou de jours fériés pour une ville ou une commune."]
+        instructions=["Tu es un assistant des dates de vacances scolaires ou de jours fériés.", 
+                     f"⚠️ Tu DOIS utiliser les tools {name_tool_holidays} ou {name_tool_off} pour répondre à toute question sur les vacances scolaires ou les jours fériés.",
+                      "Tu réponds uniquement sur les dates de vacances scolaires ou de jours fériés pour une ville ou une commune.",
+                      "Ne réponds jamais avec tes propres connaissances sans appeler l'un des 2 tools."]
     )
+    name_tool_gps = getattr(tool_coordinates_openmeteo, "name", None)    
     gps_agent = create_agent(    
-        name="Expert de coordonnées GPS",
-        role="Donner les coordonnées GPS d'une ville ou d'une commune",        
-        tools=[get_coordinates_openmeteo],
-        instructions=["Tu es un assistant de coordonnées GPS.",
-                      "Tu réponds toujours en français, en langage naturel, sans jamais afficher de code, JSON ou d'appels de fonctions.",
-                      "Tu réponds uniquement sur les demandes de coordonnées GPS pour une ville ou une commune."]
+        tools=[tool_coordinates_openmeteo],
+        instructions=["Tu es un assistant de coordonnées GPS.",      
+                      f"⚠️ Tu DOIS utiliser le tool {name_tool_gps} pour répondre à toute question sur les coordonnées GPS.",                
+                      "Tu réponds uniquement sur les demandes de coordonnées GPS pour une ville ou une commune.",
+                      "Ne réponds jamais avec tes propres connaissances sans appeler le tool."]
     )
 
     # search_agent = Agent(

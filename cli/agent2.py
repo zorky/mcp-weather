@@ -20,9 +20,10 @@ from utils.metrics_agno import print_metrics_team
 from agent.agent import get_agent_team
 
 if __name__ == "__main__":
-    question="Je veux partir à Rome la semaine prochaine, quel temps fera-t-il ?"
+    default_question="Je veux partir à Rome la semaine prochaine, quel temps fera-t-il ?"
+    question = input("Entrez votre question (ou appuyez sur Entrée pour la question par défaut) : ") or default_question
     print(f"Agent Team multi-agents sur la question {question}")
     team = get_agent_team()
     response = team.run(question, stream=False)
     pprint_run_response(response, markdown=False)
-    print_metrics_team(team)
+    # print_metrics_team(team)

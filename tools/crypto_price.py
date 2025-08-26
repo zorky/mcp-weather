@@ -11,8 +11,8 @@ logger = init_logger(level=logging.DEBUG)
 class CryptoPriceEUR(BaseModel):
     EUR: float
 
-# @tool(show_result=True, stop_after_tool_call=True,
-#       cache_results=True, cache_dir="/tmp/agno_cache", cache_ttl=3600)
+@tool(show_result=True, stop_after_tool_call=True,
+      cache_results=True, cache_dir="/tmp/agno_cache", cache_ttl=3600)
 def logger_hook(function_name: str, function_call: Callable, arguments: Dict[str, Any]):
     """Hook function that wraps the tool execution"""
     print(f"About to call {function_name} with arguments: {arguments}")
@@ -20,11 +20,12 @@ def logger_hook(function_name: str, function_call: Callable, arguments: Dict[str
     print(f"Function call completed with result: {result}")
     return result
 
-# @tool(name="get_crypto_price",
-#       description="Obtenir le cours actuel en EUR d'une crypto-monnaie (ex: BTC, ETH).",
-#       show_result=True, 
-#       stop_after_tool_call=True,
-#       tool_hooks=[logger_hook],)
+@tool(name="get_crypto_price",
+      description="Obtenir le cours actuel en EUR d'une crypto-monnaie (ex: BTC, ETH).",
+      show_result=True, 
+      stop_after_tool_call=True,
+    #   tool_hooks=[logger_hook],
+      )
 def get_crypto_price(symbol: str) -> str:
     """
     Trouve le cours actuel en EUR d'une crypto (ex: BTC, ETH).
