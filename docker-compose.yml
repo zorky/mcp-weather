@@ -6,12 +6,15 @@ services:
 
     runtime: nvidia
     environment:
+      # https://collabnix.com/complete-ollama-guide-installation-usage-code-examples/
       NVIDIA_VISIBLE_DEVICES: "all"
       OLLAMA_KV_CACHE_TYPE: "q4_0"
       OLLAMA_KEEP_ALIVE: "24h"
       OLLAMA_MAX_LOADED_MODELS: "1"
+      # OLLAMA_MAX_LOADED_MODELS: "2"
       OLLAMA_FLASH_ATTENTION: "1"
-      # OLLAMA_MODELS:""
+      # OLLAMA_DEBUG: 2
+      # OLLAMA_NUM_GPU: 0
     shm_size: 2g
     healthcheck:
       test: [ "CMD", "ollama", "list", "||", "exit", "1" ]
