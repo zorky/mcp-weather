@@ -18,7 +18,7 @@ MODEL=os.getenv("LLM_MODEL", "llama3.1:8b")
 # MODEL="llama3:8b-instruct-q4_K_M" # no tools !
 
 LLM_API="http://localhost:11434/"
-TEMPERATURE="0"
+TEMPERATURE="0.1"
 
 def get_ollama_model():
     ollama_sync_client = Client(

@@ -9,6 +9,7 @@ dependencies = [
     "duckduckgo-search>=8.1.1",
     "fastapi>=0.116.1",
     "googlesearch-python>=1.3.0",
+    "matplotlib>=3.10.5",
     "ollama>=0.5.3",
     "openai>=1.99.9",
     "pycountry>=24.6.1",
