@@ -1,13 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def softmax(logits, T=1.0):
-    """
-    Calcule le softmax avec une température donnée
-    """
-    logits = np.array(logits) / T
-    exp = np.exp(logits - np.max(logits))  # stabilité numérique
-    return exp / exp.sum()
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from cli.softmax import softmax
 
 # Exemple de logits (scores bruts du modèle pour 3 tokens)
 logits = [2.0, 1.0, 0.1]
