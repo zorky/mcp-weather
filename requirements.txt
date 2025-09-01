@@ -1,10 +1,16 @@
 fastapi==0.116.1 # Web framework
 uvicorn==0.35.0 # ASGI server
 requests==2.32.4 # HTTP client
+
 langchain==0.3.27
 langchain-core==0.3.74
-langchain-community==0.3.27
+langchain-community==0.3.29
 langchainhub==0.1.21
+
+langgraph==0.6.6
+feedparser==6.0.11
+
 openai==1.99.9
 pydantic==2.11.7
+
 pipdeptree
