@@ -18,7 +18,7 @@ llm = ChatOpenAI(
 )
 
 def summarize_article(title, content):
-    prompt = f"""Tu es un journaliste expert. Résume cet article en 3 phrases claires et concises.
+    prompt = f"""Tu es un journaliste expert. Résume en français cet article en 3 phrases claires et concises.
 Titre : {title}
 Contenu : {content}
 """

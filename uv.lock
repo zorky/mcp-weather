@@ -354,6 +354,12 @@ wheels = [
 ]
 
 [[package]]
+name = "dedent"
+version = "0.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/0a/1cd1e8aa840995e0dc761ab4b801da54fb4ea41795d161b80597737aa607/dedent-0.5.tar.gz", hash = "sha256:2235516b3010d5b7d12b2041cbf4b087f6339922e0ddf9c2cc00511138a8d737", size = 1895 }
+
+[[package]]
 name = "distro"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -992,6 +998,7 @@ name = "mcp-weather"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "dedent" },
     { name = "fastapi" },
     { name = "feedparser" },
     { name = "langchain" },
@@ -1008,6 +1015,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "dedent", specifier = ">=0.5" },
     { name = "fastapi", specifier = ">=0.116.1" },
     { name = "feedparser", specifier = ">=6.0.11" },
     { name = "langchain", specifier = ">=0.3.27" },
