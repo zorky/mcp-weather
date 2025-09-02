@@ -1,3 +1,55 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Agent RSS avec résumé automatique via LLM local.
+
+Ce script exécute ces actions, dans l'ordre :
+- Lit une liste de flux RSS
+- Filtre les articles selon des mots-clés
+- Résume les articles avec un modèle LLM local (Ollama)
+- Affiche les résultats en console
+
+Framework : LangGraph pour le graphe des actions (noeuds)
+
+Usage :
+    python agent_rss.py --debug
+
+Installation et Configuration :
+
+ - Installer les dépendances requises avec uv :
+
+   ```
+   uv venv
+   source .venv/bin/activate # ou source .venv/Scripts/activate sous Windows
+   uv sync --dev
+   ```
+   ou pip
+   ```
+   python3 -m venv .venv
+   source .venv/bin/activate # ou source .venv/Scripts/activate sous Windows
+   pip install -r requirements.txt
+   ```
+ - un fichier .env est possible pour surcharger 3 variables : 
+   LLM_MODEL (par défaut mistal), 
+   LLM_TEMPERATURE (par défaut 0.3), 
+   OLLAMA_BASE_URL (par défaut http://localhost:11434/v1)
+   LIMIT_ARTICLES (par défaut -1 : pas de limite)
+   
+   Exemple :
+
+ LLM_MODEL=mistral
+ # LLM_MODEL=llama3:8b-instruct-q4_K_M
+ LLM_TEMPERATURE=0.7
+
+
+ - Ollama doit être exécuté en local avec le modèle pullé, ou tout autre serveur LLM
+
+"""
+
+import logging
+import argparse
+from colorama import Fore, Style, init
+from dotenv import load_dotenv
 from langgraph.graph import StateGraph
 from langchain_core.runnables import RunnableLambda
 from pydantic import BaseModel
@@ -8,15 +60,61 @@ import os
 import opml
 
 # =========================
+# Init couleurs
+# =========================
+init(autoreset=True)
+
+# =========================
+# Parsing des arguments CLI
+# =========================
+parser = argparse.ArgumentParser(description="Agent RSS avec résumés LLM")
+parser.add_argument("--debug", action="store_true", help="Active le mode debug détaillé")
+args = parser.parse_args()
+
+# =========================
+# Formatter coloré
+# =========================
+class ColorFormatter(logging.Formatter):
+    COLORS = {
+        logging.DEBUG: Fore.CYAN,
+        logging.INFO: Fore.GREEN,
+        logging.WARNING: Fore.YELLOW,
+        logging.ERROR: Fore.RED,
+        logging.CRITICAL: Fore.RED + Style.BRIGHT
+    }
+
+    def format(self, record):
+        color = self.COLORS.get(record.levelno, "")
+        levelname_color = color + record.levelname + Style.RESET_ALL
+        record.levelname = levelname_color
+        return super().format(record)
+
+formatter = ColorFormatter(
+    fmt="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%H:%M:%S"
+)
+
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
+logger.addHandler(handler)
+logger.propagate = False
+
+# =========================
 # Configuration du modèle
 # =========================
-MODEL = os.getenv("LLM_MODEL", "mistral")
+
+load_dotenv()
+
+LLM_MODEL = os.getenv("LLM_MODEL", "mistral")
 LLM_API = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
 
 llm = ChatOpenAI(
     temperature=LLM_TEMPERATURE,
-    model=MODEL,
+    model=LLM_MODEL,
     openai_api_base=LLM_API,
     openai_api_key="dummy-key-ollama",
 )
@@ -24,21 +122,22 @@ llm = ChatOpenAI(
 # =========================
 # Fonctions utilitaires
 # =========================
-def log_step(message: str):
-    print(f"\n🔹 {message}")
-
 def summarize_article(title, content):
     prompt = f"""Tu es un journaliste expert. Résume en français cet article en 3 phrases claires et concises.
 Titre : {title}
 Contenu : {content}
 """
+    if args.debug:
+        logger.debug(Fore.MAGENTA + "--- PROMPT ENVOYÉ AU LLM ---\n" + prompt + "\n---------------------------")
     result = llm.invoke(prompt)
+    if args.debug:
+        logger.debug(Fore.MAGENTA + "--- RÉPONSE BRUTE DU LLM ---\n" + str(result) + "\n---------------------------")
     return result.content.strip() if hasattr(result, "content") else str(result).strip()
 
 def fetch_rss_articles(rss_urls):
     articles = []
     for url in rss_urls:
-        log_step(f"Lecture du flux RSS : {url}")
+        logger.info(Fore.BLUE + f"Lecture du flux RSS : {url}")
         feed = feedparser.parse(url)
         for entry in feed.entries:
             articles.append({
@@ -46,6 +145,7 @@ def fetch_rss_articles(rss_urls):
                 "summary": entry.summary,
                 "link": entry.link
             })
+    logger.debug(f"{len(articles)} articles récupérés au total")
     return articles
 
 def filter_articles_by_keywords(articles, keywords):
@@ -53,15 +153,16 @@ def filter_articles_by_keywords(articles, keywords):
     for article in articles:
         if any(k.lower() in article["title"].lower() or k.lower() in article["summary"].lower() for k in keywords):
             filtered.append(article)
+    logger.debug(f"{len(filtered)} articles après filtrage")
     return filtered
 
 def read_opml():
     o = opml.parse('my.opml')
     for x in o:
-        print(x.text)        
+        logger.info(x.text)        
         for y in x:
             if y.type == "rss":            
-                print(y.xmlUrl)
+                logger.info(y.xmlUrl)
 
 # =========================
 # Définition de l’état
@@ -77,22 +178,29 @@ class RSSState(BaseModel):
 # Nœuds du graphe
 # =========================
 def fetch_node(state: RSSState):
-    log_step("📥 Récupération des articles...")
+    logger.info("📥 Récupération des articles...")
     articles = fetch_rss_articles(state.rss_urls)
-    print(f"   → {len(articles)} articles récupérés")
+    logger.info(f"{len(articles)} articles récupérés")
     return state.model_copy(update={"articles": articles})
 
 def filter_node(state: RSSState):
-    log_step("🔍 Filtrage des articles par mots-clés...")
+    logger.info("🔍 Filtrage des articles par mots-clés...")
     filtered = filter_articles_by_keywords(state.articles, state.keywords)
-    print(f"   → {len(filtered)} articles correspondent aux mots-clés")
+    logger.info(f"{len(filtered)} articles correspondent aux mots-clés")
     return state.model_copy(update={"filtered_articles": filtered})
 
 def summarize_node(state: RSSState):
-    log_step("✏️  Résumé des articles filtrés...")
+    logger.info("✏️  Résumé des articles filtrés...")
+    LIMIT_ARTICLES = int(os.getenv("LIMIT_ARTICLES", -1))
+    if LIMIT_ARTICLES > 0:
+        logger.info(f"Limite de résumé à {LIMIT_ARTICLES} articles")
+        articles = state.filtered_articles[:LIMIT_ARTICLES]
+    else:
+        logger.info("Pas de limite sur le nombre d'articles à résumer")
+        articles = state.filtered_articles
     summaries = []
-    for i, article in enumerate(state.filtered_articles, start=1):
-        print(f"   → Résumé {i}/{len(state.filtered_articles)} : {article['title']}")
+    for i, article in enumerate(articles, start=1):
+        logger.info(Fore.YELLOW + f"Résumé {i}/{len(articles)} : {article['title']}")
         summary_text = summarize_article(article["title"], article["summary"])
         summaries.append({
             "title": article["title"],
@@ -102,15 +210,18 @@ def summarize_node(state: RSSState):
     return state.model_copy(update={"summaries": summaries})
 
 def output_node(state: RSSState):
-    log_step("📄 Affichage des résultats finaux")
+    logger.info("📄 Affichage des résultats finaux")
     for item in state.summaries:
-        print(f"\n📰 {item['title']}\n📝 {item['summary']}\n🔗 {item['link']}")
+        print(Fore.CYAN + f"\n📰 {item['title']}\n" +
+              Fore.GREEN + f"📝 {item['summary']}\n" +
+              Fore.BLUE + f"🔗 {item['link']}")
     return state
 
 # =========================
 # Construction du graphe
+# fetch -> filter -> summarize -> output
 # =========================
-def _make_graph():
+def make_graph():
     graph = StateGraph(RSSState)
     graph.add_node("fetch", RunnableLambda(fetch_node))
     graph.add_node("filter", RunnableLambda(filter_node))
@@ -128,7 +239,9 @@ def _make_graph():
 # Main
 # =========================
 def main():
-    agent = _make_graph()
+    logger.info(Fore.MAGENTA + Style.BRIGHT + "=== Agent RSS avec résumés LLM ===")
+    logger.info(Fore.YELLOW + Style.BRIGHT + f"sur {LLM_API} avec {LLM_MODEL} sur une T° {LLM_TEMPERATURE}")
+    agent = make_graph()
     state = RSSState(
         rss_urls=[
             "https://cosmo-games.com/sujet/ia/feed/",
