@@ -34,12 +34,14 @@ Installation et Configuration :
    LLM_TEMPERATURE (par défaut 0.3), 
    OLLAMA_BASE_URL (par défaut http://localhost:11434/v1)
    LIMIT_ARTICLES (par défaut -1 : pas de limite)
-   
+   RSS_URLS (par défaut la liste dans _get_rss_urls) : sur une seule ligne
+
    Exemple :
 
  LLM_MODEL=mistral
  # LLM_MODEL=llama3:8b-instruct-q4_K_M
  LLM_TEMPERATURE=0.7
+ RSS_URLS=["https://belowthemalt.com/feed/","https://cosmo-games.com/sujet/ia/feed/","https://www.ajeetraina.com/rss/","https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"]
 
 
  - Ollama doit être exécuté en local avec le modèle pullé, ou tout autre serveur LLM
@@ -57,6 +59,7 @@ from typing import List, Optional
 from langchain_community.chat_models import ChatOpenAI
 import feedparser
 import os
+import json
 import opml
 
 # =========================
@@ -235,6 +238,29 @@ def make_graph():
 
     return graph.compile()
 
+def _get_rss_urls():
+    """
+    Obtient la liste des URL RSS à traiter à partir des variables d'environnement.
+    """
+    default_list = [
+        "https://cosmo-games.com/sujet/ia/feed/",
+        "https://belowthemalt.com/feed/",
+        "https://www.ajeetraina.com/rss/",
+        "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+        "https://www.cert.ssi.gouv.fr/alerte/feed/"
+    ]
+    default_json = json.dumps(default_list)
+
+    rss_urls_str = os.getenv("RSS_URLS", default_json)
+    try:
+        rss_urls = json.loads(rss_urls_str)
+        if not isinstance(rss_urls, list):
+            raise ValueError("RSS_URLS n'est pas une liste JSON valide")
+    except (json.JSONDecodeError, ValueError):
+        rss_urls = default_list
+
+    return rss_urls
+
 # =========================
 # Main
 # =========================
@@ -242,13 +268,9 @@ def main():
     logger.info(Fore.MAGENTA + Style.BRIGHT + "=== Agent RSS avec résumés LLM ===")
     logger.info(Fore.YELLOW + Style.BRIGHT + f"sur {LLM_API} avec {LLM_MODEL} sur une T° {LLM_TEMPERATURE}")
     agent = make_graph()
+    rss_urls = _get_rss_urls()
     state = RSSState(
-        rss_urls=[
-            "https://cosmo-games.com/sujet/ia/feed/",
-            "https://belowthemalt.com/feed/",
-            "https://www.ajeetraina.com/rss/",
-            "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
-        ],
+        rss_urls=rss_urls,
         keywords=["intelligence artificielle", "IA générative", "cybersécurité"]
     )
     agent.invoke(state)
