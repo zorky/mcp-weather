@@ -148,6 +148,7 @@ def fetch_rss_articles(rss_urls):
                 "summary": entry.summary,
                 "link": entry.link
             })
+        logger.info(f"{len(feed.entries)} articles trouvés dans ce flux")
     logger.debug(f"{len(articles)} articles récupérés au total")
     return articles
 
@@ -243,11 +244,12 @@ def _get_rss_urls():
     Obtient la liste des URL RSS à traiter à partir des variables d'environnement.
     """
     default_list = [
+        "https://cert.ssi.gouv.fr/alerte/feed/",
+        "https://www.djangoproject.com/rss/community/",
         "https://cosmo-games.com/sujet/ia/feed/",
         "https://belowthemalt.com/feed/",
         "https://www.ajeetraina.com/rss/",
-        "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
-        "https://www.cert.ssi.gouv.fr/alerte/feed/"
+        "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
     ]
     default_json = json.dumps(default_list)
 
@@ -271,7 +273,7 @@ def main():
     rss_urls = _get_rss_urls()
     state = RSSState(
         rss_urls=rss_urls,
-        keywords=["intelligence artificielle", "IA générative", "cybersécurité"]
+        keywords=["intelligence artificielle", "IA générative", "cybersécurité", "alerte sécurité"]
     )
     agent.invoke(state)
 
