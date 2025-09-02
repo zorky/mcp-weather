@@ -3,6 +3,7 @@
 from langchain_community.chat_models import ChatOpenAI
 import feedparser
 import os
+import opml
 
 MODEL=os.getenv("MODEL_NAME", "mistral")
 LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
@@ -43,3 +44,11 @@ def filter_articles_by_keywords(articles, keywords):
             filtered.append(article)
     return filtered
 
+def read_opml():
+    o = opml.parse('my.opml')
+    for x in o:
+        print(x.text)        
+        for y in x:
+            if y.type=="rss":            
+                print(y.xmlUrl)
+    # print(*[x.xmlUrl for x in o], sep="\n")

@@ -7,7 +7,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from cli.utils import fetch_rss_articles, filter_articles_by_keywords, summarize_article
+from cli.utils import fetch_rss_articles, filter_articles_by_keywords, summarize_article, read_opml
 
 # Définition du schéma d’état
 class RSSState(BaseModel):
@@ -48,28 +48,40 @@ def output_node(state: RSSState):
         print(f"📰 {item['title']}\n📝 {item['summary']}\n🔗 {item['link']}\n")
     return state
 
-# Construction du graphe
-graph = StateGraph(RSSState)
-graph.add_node("fetch", RunnableLambda(fetch_node))
-graph.add_node("filter", RunnableLambda(filter_node))
-graph.add_node("summarize", RunnableLambda(summarize_node))
-graph.add_node("output", RunnableLambda(output_node))
+def _make_graph():
+    # Construction du graphe
+    graph = StateGraph(RSSState)
+    graph.add_node("fetch", RunnableLambda(fetch_node))
+    graph.add_node("filter", RunnableLambda(filter_node))
+    graph.add_node("summarize", RunnableLambda(summarize_node))
+    graph.add_node("output", RunnableLambda(output_node))
 
-graph.set_entry_point("fetch")
-graph.add_edge("fetch", "filter")
-graph.add_edge("filter", "summarize")
-graph.add_edge("summarize", "output")
+    graph.set_entry_point("fetch")
+    graph.add_edge("fetch", "filter")
+    graph.add_edge("filter", "summarize")
+    graph.add_edge("summarize", "output")
 
-# Compile et exécute
-agent = graph.compile()
+    # Compile et exécute
+    agent = graph.compile()
+    return agent
 
-# Exemple d’état initial
-state = RSSState(
-    rss_urls=[
-        "https://www.lemonde.fr/rss/une.xml",
-        "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
-    ],
-    keywords=["intelligence artificielle", "climat", "cybersécurité"]
-)
+def main():    
+    # read_opml()
+    agent = _make_graph()
+    # Exemple d’état initial
+    state = RSSState(
+        rss_urls=[
+            "https://cosmo-games.com/sujet/ia/feed/",
+            "https://belowthemalt.com/feed/",
+            "https://www.ajeetraina.com/rss/",
+            # "https://www.lemonde.fr/rss/une.xml",
+            "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
+        ],
+        # keywords=["intelligence artificielle", "climat", "cybersécurité"]
+        keywords=["intelligence artificielle", "IA générative", "cybersécurité"]
+    )
 
-agent.invoke(state)
+    agent.invoke(state)
+
+if __name__=="__main__":
+    main()
