@@ -16,7 +16,7 @@ Usage :
 
 Installation et Configuration :
 
- - Installer les dépendances requises avec uv :
+ - Installer les dépendances requises avec uv ou pip :
 
    ```
    uv venv
@@ -29,6 +29,8 @@ Installation et Configuration :
    source .venv/bin/activate # ou source .venv/Scripts/activate sous Windows
    pip install -r requirements.txt
    ```
+   paquets : langgraph, langchain, langchain_core, pydantic, feedparser
+
  - un fichier .env est possible pour surcharger 3 variables : 
    LLM_MODEL (par défaut mistal), 
    LLM_TEMPERATURE (par défaut 0.3), 
@@ -222,7 +224,7 @@ def output_node(state: RSSState):
     return state
 
 # =========================
-# Construction du graphe
+# Construction du graphe : noeuds (nodes) et transitions (edges)
 # fetch -> filter -> summarize -> output
 # =========================
 def make_graph():
@@ -242,6 +244,7 @@ def make_graph():
 def _get_rss_urls():
     """
     Obtient la liste des URL RSS à traiter à partir des variables d'environnement.
+    Le .env ne contient que des types string et au format JSON
     """
     default_list = [
         "https://cert.ssi.gouv.fr/alerte/feed/",
@@ -251,6 +254,7 @@ def _get_rss_urls():
         "https://www.ajeetraina.com/rss/",
         "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
     ]
+    # ["https://cert.ssi.gouv.fr/feed/", "https://feeds.feedburner.com/TheHackersNews", "https://blog.cryptographyengineering.com/feed", "https://cybersecuritynews.com/feed/", "https://securityboulevard.com/feed/"]
     default_json = json.dumps(default_list)
 
     rss_urls_str = os.getenv("RSS_URLS", default_json)
