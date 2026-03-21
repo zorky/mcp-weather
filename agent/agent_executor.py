@@ -1,7 +1,11 @@
 import os
 import logging
+
 from logger import init_logger
 logger = init_logger(level=logging.DEBUG)
+
+from dotenv import load_dotenv
+load_dotenv() 
 
 from langchain.agents import Tool, AgentExecutor, create_react_agent
 from langchain.prompts import PromptTemplate
@@ -16,7 +20,8 @@ from tools.holidays import get_jours_feries, get_vacances_scolaires
 # from tools.geo_tools import get_coordinates_openmeteo
 # from tools.geo_tools import get_coordinates_openstreetmap
 
-MODEL=os.getenv("MODEL_NAME", "llama3:8b-instruct-q4_K_M")
+# MODEL=os.getenv("MODEL_NAME", "llama3:8b-instruct-q4_K_M")
+MODEL=os.getenv("MODEL_NAME", "mistral")
 LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 LLM_TEMPERATURE=os.getenv("LLM_TEMPERATURE", '0.3')  # 0 : déterministe et précis, 0.3 : un peu plus créatif, etc
 

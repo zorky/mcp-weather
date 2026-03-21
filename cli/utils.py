@@ -5,6 +5,9 @@ import feedparser
 import os
 import opml
 
+from dotenv import load_dotenv
+load_dotenv() 
+
 MODEL=os.getenv("MODEL_NAME", "mistral")
 LLM_API=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 LLM_TEMPERATURE=os.getenv("LLM_TEMPERATURE", '0.3')

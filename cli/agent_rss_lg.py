@@ -114,7 +114,7 @@ logger.propagate = False
 load_dotenv()
 
 LLM_MODEL = os.getenv("LLM_MODEL", "mistral")
-LLM_API = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+LLM_API = os.getenv("OLLAMA_BASE_URL", "http://10.10.4.200:11434/v1")
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
 
 llm = ChatOpenAI(

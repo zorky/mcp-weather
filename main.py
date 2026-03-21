@@ -2,7 +2,7 @@
 Application principale pour le serveur FastAPI qui gère les requêtes de l'agent
 ask + tools <--> Ollama LLM
 """
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Dict
@@ -20,6 +20,8 @@ logger = init_logger(level=logging.DEBUG)
 
 @app.get("/ask")
 async def ask_agent(question: str):
+    # question_enhancement = f"{question}\n\nRéponds en français en Markdown."
+    # return {"response": agent.run(question_enhancement)}
     return {"response": agent.run(question)}
 
 @app.get("/ask_hybrid")

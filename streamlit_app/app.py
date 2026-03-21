@@ -5,7 +5,11 @@ import os
 from pydantic import BaseModel
 from typing import Optional
 
+from dotenv import load_dotenv
+load_dotenv() 
+
 AGENT_WEATHER_URL = os.getenv("AGENT_WEATHER_URL", "http://localhost:8000/ask")
+# AGENT_WEATHER_URL = os.getenv("AGENT_WEATHER_URL", "http://localhost:8000/ask_hybrid")
 TIMEOUT_REQUEST_AGENT = int(os.getenv("TIMEOUT_REQUEST_AGENT", 240))
 
 class AgentResponse(BaseModel):
@@ -38,12 +42,27 @@ if st.button("Envoyer") and user_input.strip():
                 params={"question": question},
                 timeout=TIMEOUT_REQUEST_AGENT
             )
-    
+            
             if response.status_code == 200:
                 data = response.json()
                 parsed = AgentResponse(**data)
                 answer = parsed.response or "Pas de réponse."
-                st.success(answer)
+
+                # Remplace les \n par <br> pour l'affichage HTML
+                answer_html = answer.replace("\n", "<br>")    
+                st.markdown(
+                    f'''<div style="
+                        background-color: #d4edda; 
+                        color: #155724; 
+                        padding: 1rem; 
+                        border-radius: 0.5rem;
+                        font-size: 1rem;
+                        line-height: 1.6;
+                    ">{answer_html}</div>''',
+                    unsafe_allow_html=True
+                )
+                
+                # st.success(answer)
             else:
                 st.error(f"Erreur API : {response.status_code}")
         except Exception as e:
